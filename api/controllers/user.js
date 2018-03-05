@@ -23,24 +23,42 @@ function saveUser(req, res) {
         user.email = params.email;
         user.role = 'ROLE_USER';
         user.image = null;
-        bcrypt.hash(params.password, null, null, (err, hash) => {
-            user.password = hash;
-            user.save((err, userStored) => {
-                if (err) {
-                    return res.status(500).send({
-                        message: 'Error: Something went wrong'
+
+        // Prevent duplicate users
+        userModel.find({$or: [
+            {email: user.email.toLowerCase()},
+            {nick: user.nick.toLowerCase()}
+        ]}).exec((err, users) => {
+            if (err) {
+                return res.status(500).send({
+                    message: 'Error: Something went wrong'
+                });
+            }
+            if (users && users.length > 0) {
+                return res.status(409).send({
+                    message: 'User already registered'
+                });
+            } else {
+                bcrypt.hash(params.password, null, null, (err, hash) => {
+                    user.password = hash;
+                    user.save((err, userStored) => {
+                        if (err) {
+                            return res.status(500).send({
+                                message: 'Error: Something went wrong'
+                            });
+                        }
+                        if (userStored) {
+                            res.status(200).send({
+                                user: userStored
+                            });
+                        } else {
+                            res.status(404).send({
+                                message: 'Error: User not registered'
+                            });
+                        }
                     });
-                }
-                if (userStored) {
-                    res.status(200).send({
-                        user: userStored
-                    });
-                } else {
-                    res.status(404).send({
-                        message: 'Error: User not registered'
-                    });
-                }
-            });
+                });
+            }
         });
     } else {
         res.status(400).send({
