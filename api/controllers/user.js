@@ -67,7 +67,39 @@ function saveUser(req, res) {
     }
 }
 
+function loginUser(req, res) {
+    const params = req.body;
+    const email = params.email;
+    const password = params.password;
+
+    userModel.findOne({
+        email: email
+    }, (err, user) => {
+        if (err) {
+            return res.status(500).send({
+                message: 'Error: Something went wrong'
+            });
+        }
+        if (user) {
+            bcrypt.compare(password, user.password, (err, check) => {
+               if (check) {
+                   return res.status(200).send({user});
+               } else {
+                   return res.status(404).send({
+                       message: 'User not identified'
+                   });
+               }
+            });
+        } else {
+            return res.status(404).send({
+                message: 'User does not exist'
+            });
+        }
+    });
+}
+
 module.exports = {
-    home: home,
-    saveUser: saveUser
+    home,
+    saveUser,
+    loginUser
 };
