@@ -83,6 +83,7 @@ function loginUser(req, res) {
         if (user) {
             bcrypt.compare(password, user.password, (err, check) => {
                if (check) {
+                   user.password = undefined;
                    return res.status(200).send({user});
                } else {
                    return res.status(404).send({
