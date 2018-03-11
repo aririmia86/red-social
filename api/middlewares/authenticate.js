@@ -14,8 +14,9 @@ exports.ensureAuth = function (req, res, next) {
     const token = req.headers.authorization
         .replace(/['"]+/g, '');
 
+    let payload;
     try {
-        const payload = jwt.decode(token, secret);
+        payload = jwt.decode(token, secret);
 
         if (payload.exp <= moment().unix()) {
             return res.status(401).send({

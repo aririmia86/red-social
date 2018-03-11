@@ -106,8 +106,28 @@ function loginUser(req, res) {
     });
 }
 
+function getUser(req, res) {
+    const userId = req.params.id;
+    userModel.findById(userId, (err, user) => {
+        if (err) {
+            return res.status(500).send({
+                message: 'Error: Something went wrong'
+            });
+        }
+
+        if (!user) {
+            return res.status(404).send({
+                message: 'User does not exist'
+            })
+        }
+
+        return res.status(200).send({user});
+    })
+}
+
 module.exports = {
     home,
     saveUser,
-    loginUser
+    loginUser,
+    getUser
 };
