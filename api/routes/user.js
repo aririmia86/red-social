@@ -2,6 +2,7 @@
 
 const express = require('express');
 const userController = require('../controllers/user');
+const mdAuth = require('../middlewares/authenticate');
 const api = express.Router();
 
 api.get('/home', userController.home);
