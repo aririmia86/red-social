@@ -157,10 +157,42 @@ function getUsers(req, res) {
     });
 }
 
+function updateUser(req, res) {
+    const userId = req.params.id;
+    const update = req.body;
+
+    delete update.password;
+
+    if (userId !== req.user.sub) {
+        return res.status(409).send({
+            message: 'Attempt to modify a different user'
+        });
+    }
+
+    userModel.findByIdAndUpdate(userId, update, {new: true}, (err, userUpdated) => {
+        if (err) {
+            return res.status(500).send({
+                message: 'Error: Something went wrong'
+            });
+        }
+
+        if (!userUpdated) {
+            return res.status(404).send({
+                message: 'User not updated'
+            });
+        }
+
+        return res.status(200).send({
+            user: userUpdated
+        });
+    });
+}
+
 module.exports = {
     home,
     saveUser,
     loginUser,
     getUser,
-    getUsers
+    getUsers,
+    updateUser
 };
